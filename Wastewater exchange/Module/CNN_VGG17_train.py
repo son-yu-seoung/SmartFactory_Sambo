@@ -28,9 +28,9 @@ class dataSet():
     #이미지를 불러오는 함수 (path = 지금 현재 데이터가 저장되어 있는 파일 주소)
     def imageRead(self, path):
         x = Image.open(path)
-        y = path.split("_")[-2]
-        # print(y)
-        return x, y
+        y = path.split("_")[2]
+        print(y)
+        return x, float(y)-1
 
     #실제로 모든 데이터를 읽어들이는 함수
     def getFilesInFolder(self, path):
@@ -73,8 +73,7 @@ class dataSet():
     
     #학습데이터랑 테스트데이터로 나누는 함수
     def splitDataset(self):
-        print(self.x)
-        print(self.y)
+        print(self.x, self.y)
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.x, self.y, test_size=0.2, shuffle=True, stratify=self.y)
         
         return self.train_x, self.train_y, self.test_x, self.test_y
@@ -119,7 +118,7 @@ print(train_y)
 
 
 model = tf.keras.Sequential([
-  tf.keras.layers.Conv2D(input_shape = (28,28,3),kernel_size = (3,3), filters = 32, padding = 'same', activation = 'relu'),
+  tf.keras.layers.Conv2D(input_shape = (64,64,3),kernel_size = (3,3), filters = 32, padding = 'same', activation = 'relu'),
   tf.keras.layers.Conv2D(kernel_size = (3,3), filters = 64, padding = 'same', activation = 'relu'),
   tf.keras.layers.MaxPool2D(pool_size = (2,2)),
   tf.keras.layers.Dropout(rate = 0.5),
@@ -140,7 +139,7 @@ model.compile(optimizer = tf.keras.optimizers.Adam(), loss = 'sparse_categorical
 model.summary()
 
 #위에서 정의한 모델 학습
-history = model.fit(train_x, train_y, epochs=1)
+history = model.fit(train_x, train_y, epochs=1, validation_split= 0.2)
 
 plt.figure(figsize = (12,4))
 plt.subplot(1,2,1)
