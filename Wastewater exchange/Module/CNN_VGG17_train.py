@@ -75,16 +75,81 @@ class dataSet():
     #학습데이터랑 테스트데이터로 나누는 함수
     def splitDataset(self):
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.x, self.y, test_size=0.2, shuffle=True, stratify=self.y)
-        print(train_y)
+        print(self.test_y)
         return self.train_x, self.train_y, self.test_x, self.test_y
 
     def onehotencoding(self):
-        self.train_y = tf.keras.utils.to_categorical(self.train_y, 12)
         print(self.train_y)
-        self.test_y = tf.keras.utils.to_categorical(self.test_y, 12)
-        print(self.train_y)
+        shape = (len(self.train_y), 12)
+        self.train_Y = np.zeros(shape, dtype=int)
+        for j in range(len(self.train_y)):
+            if self.train_y[j] == 7.78:
+                self.train_Y[j] = [1,0,0,0,0,0,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.59:
+                self.train_Y[j] = [0,1,0,0,0,0,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.54:
+                self.train_Y[j] = [0,0,1,0,0,0,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.49:
+                self.train_Y[j] = [0,0,0,1,0,0,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.45:
+                self.train_Y[j] = [0,0,0,0,1,0,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.41:
+                self.train_Y[j] = [0,0,0,0,0,1,0,0,0,0,0,0]
+            elif self.train_y[j]  == 7.35:
+                self.train_Y[j] = [0,0,0,0,0,0,1,0,0,0,0,0]
+            elif self.train_y[j]  == 7.32:
+                self.train_Y[j] = [0,0,0,0,0,0,0,1,0,0,0,0]
+            elif self.train_y[j]  == 7.29:
+                self.train_Y[j] = [0,0,0,0,0,0,0,0,1,0,0,0]
+            elif self.train_y[j]  == 7.28:
+                self.train_Y[j] = [0,0,0,0,0,0,0,0,0,1,0,0]
+            elif self.train_y[j]  == 7.26:
+                self.train_Y[j] = [0,0,0,0,0,0,0,0,0,0,1,0]
+            elif self.train_y[j]  == 7.24:
+                self.train_Y[j] = [0,0,0,0,0,0,0,0,0,0,0,1]
+
+        shape = (len(self.test_y),12)
+        self.test_Y = np.zeros(shape, dtype=int)
+        for j in range(len(self.test_y)):
+            if self.test_y[j] == 7.78:
+                self.test_Y[j] = [1,0,0,0,0,0,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.59:
+                self.test_Y[j] = [0,1,0,0,0,0,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.54:
+                self.test_Y[j] = [0,0,1,0,0,0,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.49:
+                self.test_Y[j] = [0,0,0,1,0,0,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.45:
+                self.test_Y[j] = [0,0,0,0,1,0,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.41:
+                self.test_Y[j] = [0,0,0,0,0,1,0,0,0,0,0,0]
+            elif self.test_y[j]  == 7.35:
+                self.test_Y[j] = [0,0,0,0,0,0,1,0,0,0,0,0]
+            elif self.test_y[j]  == 7.32:
+                self.test_Y[j] = [0,0,0,0,0,0,0,1,0,0,0,0]
+            elif self.test_y[j]  == 7.29:
+                self.test_Y[j] = [0,0,0,0,0,0,0,0,1,0,0,0]
+            elif self.test_y[j]  == 7.28:
+                self.test_Y[j] = [0,0,0,0,0,0,0,0,0,1,0,0]
+            elif self.test_y[j]  == 7.26:
+                self.test_Y[j] = [0,0,0,0,0,0,0,0,0,0,1,0]
+            elif self.test_y[j]  == 7.24:
+                self.test_Y[j] = [0,0,0,0,0,0,0,0,0,0,0,1]
+        print("응애")
+        for i in range (1,len(self.test_Y)):
+            print(self.test_Y[i])
+
         
-        return self.train_y, self.test_y
+        return self.train_Y, self.test_Y
+
+    def shuffleData(self):
+        self.train_x = np.array(self.train_x)
+        self.train_y = np.array(self.train_y)
+        self.test_x = np.array(self.train_y)
+        self.test_y = np.array(self.test_y)
+        self.train_x, self.train_y = shuffle(self.train_x, self.train_y, self.test_x, self.test_y)
+        print(self.train_y)
+        return self.train_x, self.train_y, self.test_x, self.test_y
     
 
     #정규화 함수
@@ -102,11 +167,12 @@ class dataSet():
         self.getFilesInFolder(self.globalPath) #전체 데이터 가져옴
         self.resizeAll(self.x, self.y, dim) # numpy화 되어 있음
         self.splitDataset() #훈련용, 시험용으로 쪼개기
+        self.onehotencoding()
         self.train_x = self.normZT(self.train_x) #train 정규화
         self.test_x = self.normZT(self.test_x) #test 정규화
-        self.onehotencoding()
+        
 
-        return self.train_x, self.train_y, self.test_x, self.test_y
+        return self.train_x, self.train_Y, self.test_x, self.test_Y
 
 
 
@@ -164,7 +230,7 @@ plt.show()
 model.evaluate(test_x, test_y, verbose = 0)
 pred = model.predict(test_x)
 
-for i in range(1, 6):
+for i in range(1, 10):
     print('정답 :', test_y[i])
     print('예상 :', pred[i])
 
