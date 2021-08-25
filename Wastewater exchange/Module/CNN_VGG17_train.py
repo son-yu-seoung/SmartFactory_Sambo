@@ -75,7 +75,7 @@ class dataSet():
     #학습데이터랑 테스트데이터로 나누는 함수
     def splitDataset(self):
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.x, self.y, test_size=0.2, shuffle=True, stratify=self.y)
-        print(self.train_y)
+        print(train_y)
         return self.train_x, self.train_y, self.test_x, self.test_y
 
     def onehotencoding(self):
