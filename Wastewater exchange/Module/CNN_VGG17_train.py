@@ -30,7 +30,7 @@ class dataSet():
         x = Image.open(path)
         y = path.split("_")[2]
         print(y)
-        return x, float(y)-1
+        return x, float(y)
 
     #실제로 모든 데이터를 읽어들이는 함수
     def getFilesInFolder(self, path):
