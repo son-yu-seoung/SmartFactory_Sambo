@@ -28,8 +28,8 @@ class dataSet():
     #이미지를 불러오는 함수 (path = 지금 현재 데이터가 저장되어 있는 파일 주소)
     def imageRead(self, path):
         x = Image.open(path)
-        y = path.split("_")[1]
-        print(y)
+        y = path.split("_")[-2]
+        # print(y)
         return x, y
 
     #실제로 모든 데이터를 읽어들이는 함수
@@ -73,7 +73,8 @@ class dataSet():
     
     #학습데이터랑 테스트데이터로 나누는 함수
     def splitDataset(self):
-        print(self.x, self.y)
+        print(self.x)
+        print(self.y)
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.x, self.y, test_size=0.2, shuffle=True, stratify=self.y)
         
         return self.train_x, self.train_y, self.test_x, self.test_y
@@ -109,9 +110,9 @@ class dataSet():
 
 
 
-globalPath = './dataset/sambo/'
+globalPath = './crop_img'
 ds = dataSet(globalPath)
-train_x, train_y, test_x, test_y = ds.load_data(28)
+train_x, train_y, test_x, test_y = ds.load_data(64)
 
 print(train_x.shape)
 print(train_y)
