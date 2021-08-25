@@ -11,6 +11,7 @@ import random
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
+
 class dataSet():
     
     #초기함수
@@ -30,7 +31,7 @@ class dataSet():
         x = Image.open(path)
         y = path.split("_")[2]
         print(y)
-        return x, float(y)-1
+        return x, float(y)
 
     #실제로 모든 데이터를 읽어들이는 함수
     def getFilesInFolder(self, path):
@@ -73,18 +74,18 @@ class dataSet():
     
     #학습데이터랑 테스트데이터로 나누는 함수
     def splitDataset(self):
-        print(self.x, self.y)
         self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.x, self.y, test_size=0.2, shuffle=True, stratify=self.y)
-        
+        print(self.train_y)
         return self.train_x, self.train_y, self.test_x, self.test_y
+
+    def onehotencoding(self):
+        self.train_y = tf.keras.utils.to_categorical(self.train_y, 12)
+        print(self.train_y)
+        self.test_y = tf.keras.utils.to_categorical(self.test_y, 12)
+        print(self.train_y)
+        
+        return self.train_y, self.test_y
     
-    
-    #데이터를 섞는 함수
-    def shuffleData(self, x, y):
-        x = np.array(x)
-        y = np.array(y)
-        x, y = shuffle(x, y)
-        return x, y
 
     #정규화 함수
     def normZT(self, x):
@@ -100,10 +101,10 @@ class dataSet():
     def load_data(self, dim):
         self.getFilesInFolder(self.globalPath) #전체 데이터 가져옴
         self.resizeAll(self.x, self.y, dim) # numpy화 되어 있음
-        self.x, self.y = self.shuffleData(self.x, self.y) #데이터 섞기
         self.splitDataset() #훈련용, 시험용으로 쪼개기
         self.train_x = self.normZT(self.train_x) #train 정규화
         self.test_x = self.normZT(self.test_x) #test 정규화
+        self.onehotencoding()
 
         return self.train_x, self.train_y, self.test_x, self.test_y
 
@@ -111,14 +112,16 @@ class dataSet():
 
 globalPath = './crop_img'
 ds = dataSet(globalPath)
-train_x, train_y, test_x, test_y = ds.load_data(64)
+train_x, train_y, test_x, test_y = ds.load_data(128)
 
 print(train_x.shape)
-print(train_y)
+print(train_y.shape)
+print(test_x.shape)
+print(test_y.shape)
 
 
 model = tf.keras.Sequential([
-  tf.keras.layers.Conv2D(input_shape = (64,64,3),kernel_size = (3,3), filters = 32, padding = 'same', activation = 'relu'),
+  tf.keras.layers.Conv2D(input_shape = (128,128,3),kernel_size = (3,3), filters = 32, padding = 'same', activation = 'relu'),
   tf.keras.layers.Conv2D(kernel_size = (3,3), filters = 64, padding = 'same', activation = 'relu'),
   tf.keras.layers.MaxPool2D(pool_size = (2,2)),
   tf.keras.layers.Dropout(rate = 0.5),
@@ -131,15 +134,15 @@ model = tf.keras.Sequential([
   tf.keras.layers.Dropout(rate = 0.5),
   tf.keras.layers.Dense(units = 256, activation= 'relu'),
   tf.keras.layers.Dropout(rate = 0.5),
-  tf.keras.layers.Dense(units = 10, activation= 'softmax'),
+  tf.keras.layers.Dense(units = 12, activation= 'softmax'),
 ])
 
-model.compile(optimizer = tf.keras.optimizers.Adam(), loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
+model.compile(optimizer = tf.keras.optimizers.Adam(), loss = 'categorical_crossentropy', metrics = ['accuracy'])
 
 model.summary()
 
 #위에서 정의한 모델 학습
-history = model.fit(train_x, train_y, epochs=1, validation_split= 0.2)
+history = model.fit(train_x, train_y, epochs=10, validation_split= 0.2)
 
 plt.figure(figsize = (12,4))
 plt.subplot(1,2,1)
@@ -155,5 +158,13 @@ plt.xlabel('Epochs')
 plt.ylim(0.7, 1)
 plt.legend()
 
+plt.show()
+
 
 model.evaluate(test_x, test_y, verbose = 0)
+pred = model.predict(test_x)
+
+for i in range(1, 6):
+    print('정답 :', test_y[i])
+    print('예상 :', pred[i])
+
