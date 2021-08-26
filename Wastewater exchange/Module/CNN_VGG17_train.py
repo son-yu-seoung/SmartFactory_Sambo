@@ -209,7 +209,7 @@ model.compile(optimizer = tf.keras.optimizers.Adam(), loss = 'categorical_crosse
 model.summary()
 
 #위에서 정의한 모델 학습
-history = model.fit(train_x, train_y, epochs=50, validation_split= 0.2)
+history = model.fit(train_x, train_y, epochs=1000, validation_split= 0.2)
 
 plt.figure(figsize = (12,4))
 plt.subplot(1,2,1)
