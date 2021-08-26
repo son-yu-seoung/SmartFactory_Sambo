@@ -235,8 +235,6 @@ for i in range(1, 10):
     print('정답 :', test_y[i])
     print('예상 :', pred[i])
 
-PH = np.argmax(pred[0])
-
 for i in range(0, 10):
     PH = np.argmax(pred[i])
 
