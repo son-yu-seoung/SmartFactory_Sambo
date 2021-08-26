@@ -1,61 +1,97 @@
 import sys
 import math
-import cv2 as cv
+import cv2 
 import numpy as np
-def main(argv): # command창에서 LineDetection.py 호출시뒤에 문자열을 인자로 줄 수 있다. 
-    
-    default_file = '.image/green_7.24_1.jpg'
-    filename = argv[0] if len(argv) > 0 else default_file # 만약 argv에 1개 이상의 문자가 들어있다면 argv[0](받은 인자)를 filename으로 지정한다.
 
-    # Loads an image
-    src = cv.imread(cv.samples.findFile(filename), cv.IMREAD_GRAYSCALE)
-    # Check if image is loaded fine
-    if src is None:
-        print ('Error opening image!')
-        print ('Usage: hough_lines.py [image_name -- default ' + default_file + '] \n')
-        return -1
+class LineDetection:
+
+    def __init__(self):
+        self.default_file = './image/green_7.24_1.jpg' # 나중에는 video에서 image로 받아야함.
     
+    def hough_transform(self):
+        lines_p = cv2.HoughLinesP(self.edge, 1, np.pi / 180, 50, None, 120 , 10)
+        line_vertical = []
+        line_horizontal = []
+
+        if lines_p is not None:
+            for i in range(0, len(lines_p)):
+                l = lines_p[i][0] # 해당 직선을 지나는 두 점의 좌표 
+
+                abs_v = abs(l[0] - l[2]) # x가 비슷하다면 수직 직선을 긋는다.
+                abs_h = abs(l[1] - l[3]) # y가 비슷하다면 수평 직선을 긋는다.
+
+                if abs_v <= 10 :  
+                    l[1] = 0
+                    l[3] = 500
+            
+                    line_vertical.append([[l[0], l[1]], [l[2], l[3]]]) # (n, 2, 2)
+                    cv2.line(self.color_edge, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv2.LINE_AA)
+            
+                elif abs_h <= 10:
+                    l[0] = 0
+                    l[2] = 500
+                
+                    line_horizontal.append([[l[0], l[1]], [l[2], l[3]]])
+                    cv2.line(self.color_edge, (l[0], l[1]), (l[2], l[3]), (255,0,0), 3, cv2.LINE_AA)
+        
+        return line_vertical, line_horizontal
     
-    dst = cv.Canny(src, 50, 200, None, 3) # Canny edge detector 
+    def calculate_points(self, p1, p2, p3, p4):
+        x1, y1 = p1
+        x2, y2 = p2
+        x3, y3 = p3
+        x4, y4 = p4
+
+        px = (x1*y2 - y1*x2)*(x3-x4) - (x1-x2)*(x3*y4 - y3*x4)
+        py= (x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4 - y3*x4)
+        p = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4)
+
+        x = px / p
+        y = py / p
+
+        return x, y 
+
+
+    def get_intersection_point(self, lines_v, lines_h):
+        points = []
+
+        for line_v in lines_v:
+            for line_h in lines_h:
+                x, y = self.calculate_points(line_v[0], line_v[1], line_h[0], line_h[1])
+                x = round(x)
+                y = round(y)
+
+                points.append([x, y])
+        
+        return points
+
+    def draw_circle(self, is_points):
+        for x, y in is_points:
+            cv2.circle(self.color_edge, (x, y), 5, (0, 255, 0), -1)
+
+
+    def show_image(self):
+        cv2.imshow("original", self.src)
+        cv2.imshow("color_edge", self.color_edge)
+
+        cv2.waitKey()
     
-    # Copy edges to the images that will display the results in BGR
-    cdst = cv.cvtColor(dst, cv.COLOR_GRAY2BGR)
-    cdstP = np.copy(cdst)
-    
-    lines = cv.HoughLines(dst, 1, np.pi / 180, 150, None, 0, 0)
-    
-    if lines is not None:
-        for i in range(0, len(lines)):
-            rho = lines[i][0][0]
-            theta = lines[i][0][1]
-            a = math.cos(theta)
-            b = math.sin(theta)
-            x0 = a * rho
-            y0 = b * rho
-            pt1 = (int(x0 + 1000*(-b)), int(y0 + 1000*(a))) # (x0, y0)
-            pt2 = (int(x0 - 1000*(-b)), int(y0 - 1000*(a))) # (x1, y1)
-            cv.line(cdst, pt1, pt2, (0,0,255), 3, cv.LINE_AA)
-    
-    
-    linesP = cv.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
-    
-    if linesP is not None:
-        for i in range(0, len(linesP)):
-            l = linesP[i][0]
-            if l[0] == l[2]:
-                l[1] = 0
-                l[3] = 500
-            elif l[1] == l[3]:
-                l[0] = 0
-                l[2] = 500
-            cv.line(cdstP, (l[0], l[1]), (l[2], l[3]), (0,0,255), 3, cv.LINE_AA)
-    
-    cv.imshow("Source", src)
-    cv.imshow("Detected Lines (in red) - Line", cdst)
-    cv.imshow("Detected Lines (in red) - LineP", cdstP)
-    
-    cv.waitKey()
-    return 0
-    
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    def start_detection(self):
+
+        # Loads an image
+        self.src = cv2.imread(cv2.samples.findFile(self.default_file), cv2.IMREAD_GRAYSCALE)
+        self.edge = cv2.Canny(self.src, 50, 200, None, 3 ) # Canny edge detector 
+        self.color_edge = cv2.cvtColor(self.edge, cv2.COLOR_GRAY2BGR)
+
+        line_vertical, line_horizontal = self.hough_transform()
+        is_points = self.get_intersection_point(line_vertical, line_horizontal)
+
+        self.draw_circle(is_points)
+        self.show_image()
+
+test = LineDetection()
+test.start_detection()
+
+        
+         
+
