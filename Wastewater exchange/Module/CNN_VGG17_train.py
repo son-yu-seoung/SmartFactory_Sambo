@@ -135,7 +135,7 @@ class dataSet():
                 self.test_Y[j] = [0,0,0,0,0,0,0,0,0,0,1,0]
             elif self.test_y[j]  == 7.24:
                 self.test_Y[j] = [0,0,0,0,0,0,0,0,0,0,0,1]
-        print("응애")
+
         for i in range (1,len(self.test_Y)):
             print(self.test_Y[i])
 
