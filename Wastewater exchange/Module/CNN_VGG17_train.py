@@ -168,17 +168,18 @@ class dataSet():
         self.resizeAll(self.x, self.y, dim) # numpy화 되어 있음
         self.splitDataset() #훈련용, 시험용으로 쪼개기
         self.onehotencoding()
+        self.test_X = self.test_x
         self.train_x = self.normZT(self.train_x) #train 정규화
         self.test_x = self.normZT(self.test_x) #test 정규화
         
 
-        return self.train_x, self.train_Y, self.test_x, self.test_Y
+        return self.train_x, self.train_Y, self.test_x, self.test_Y, self.test_X
 
 
 
 globalPath = './crop_img'
 ds = dataSet(globalPath)
-train_x, train_y, test_x, test_y = ds.load_data(128)
+train_x, train_y, test_x, test_y, test_X = ds.load_data(128)
 
 print(train_x.shape)
 print(train_y.shape)
@@ -208,7 +209,7 @@ model.compile(optimizer = tf.keras.optimizers.Adam(), loss = 'categorical_crosse
 model.summary()
 
 #위에서 정의한 모델 학습
-history = model.fit(train_x, train_y, epochs=10, validation_split= 0.2)
+history = model.fit(train_x, train_y, epochs=1, validation_split= 0.2)
 
 plt.figure(figsize = (12,4))
 plt.subplot(1,2,1)
@@ -234,3 +235,33 @@ for i in range(1, 10):
     print('정답 :', test_y[i])
     print('예상 :', pred[i])
 
+PH = np.argmax(pred[0])
+
+if PH == 0:
+    PH = '7.78'
+elif PH == 1:
+    PH = '7.59'
+elif PH == 2:
+    PH = '7.54'
+elif PH == 3:
+    PH = '7.49'
+elif PH == 4:
+    PH = '7.45'
+elif PH == 5:
+    PH = '7.41'
+elif PH == 6:
+    PH = '7.35'
+elif PH == 7:
+    PH = '7.32'
+elif PH == 8:
+    PH = '7.29'
+elif PH == 9:
+    PH = '7.28'
+elif PH == 10:
+    PH = '7.26'
+elif PH == 11:
+    PH = '7.25'
+
+plt.imshow(test_X[0], cmap='gray')
+plt.xlabel(PH)
+plt.show()
