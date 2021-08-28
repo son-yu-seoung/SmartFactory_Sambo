@@ -1,56 +1,85 @@
 import cv2
 import datetime
 import time
-
-path = './Module/realT_img/'
-
-cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # 종료할 때 [WARN:0]오류 제거 
-# print('width :%d, height : %d' % (cap.get(3), cap.get(4)))
-n = 1
+from Module import crop
 
 while(True):
+    try:
+        print('▶▶▶삼보산업 PH 예측기입니다.◀◀◀')
+        print('[0] : 프로그램 종료, [1]: PH 예측시작(종료시 q버튼), [2] : ~, ')
+        choice = int(input('번호를 선택하십시오 : '))
+        print()
+
+    except Exception as ex:
+        print('error :', ex)
+        print()
+        choice = None
+        time.sleep(1)
+
+    if choice == None:
+        continue
     
-    ret, frame = cap.read() # ret은 정상적으로 작동하는지 반환(True, False), frame은 이미지를 넘파이배열 형대로 가져옴 
-    # 비디오 frame의 크기를 설정 (너비, 높이):절대크기, fx=0.3, fy=0.7:상대크기, INTER_(LINEAR, AREA, ...etc)
-    # frame =cv2.resize(frame, (640, 480), interpolation=cv2.INTER_LINEAR) # 비디오 영상의 크기 설정
-    #frame = cv2.resize(frame, dsize=(0, 0), fx=0.3, fy=0.7, interpolation=cv2.INTER_LINEAR)
-
-    cv2.imshow('Original Video', frame)
-
-    key = cv2.waitKey(1) # 키를 기다리는 대기 함수 0이면 무한대기 1000이면 1초
-
-    if key == ord('q') or key == ord('Q'):
+    elif choice == 0:
+        print('프로그램이 3초뒤 종료됩니다.')
+        time.sleep(3)
         break
 
-    # elif key == ord('s') or key == ord('S'):
-    #     n = 15
-    #     file = path + 'green_' + '6.97_' + str(n) + '.jpg'
-    #     n += 1 
-    #     # file = path + datetime.datetime.now().strftime("%Y%m%d_%H%M%S%f") + '.jpg'
-    #     cv2.imwrite(file, frame)
-    #     print(file, ' saved')
-    
-    elif key == ord('g') or key == ord('G'):
+    elif choice == 1:
+        path = './Module/realT_img/'
+        cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
-        for i in range(5): # 10장의 사진을 찍는다.
-            ret, frame = cap.read() # frame이 실질적으로 영상을 가져오기 때문에 frame을 reset시켜줘야 움직이는 사진이 찍힌다!
-            file = path + 'green_' + '6.08_' + str(n) + '.jpg'
-            n +=1
-            # file = path + datetime.datetime.now().strftime("%Y%m%d_%H%M%S%f") + '.jpg'
-            cv2.imwrite(file, frame)
-            print(file, ' saved')
-            time.sleep(0.3) # 0.3초 간격으로
+        hour = 0
+        min = 0 
+        start = time.time()
 
-            # path = './Module/realT_img/'
-            img_path = [ y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.jpg'))]
-            for path in img_path:
-                print('path :', path)
-                test = LineDetection(path)
-                test.start_detection()
-                test.show_image()
-                n += 1
+        while(True):
+            key = cv2.waitKey(1)
 
-    
-cap.release()
-cv2.destroyAllWindows()
+            ret, frame = cap.read()
+            cv2.imshow('Original Video', frame) # 캡쳐를 할 때마다 불러서 실행시키면 성능이 안좋을 것 같다 -> 나중에 삭제
+            
+            sec = int(time.time()-start)
+
+            if sec >= 60:
+                temp_m= sec // 60
+                min += temp_m
+                start = time.time() # 이 과정에서 n초의 손실 발생 
+                print('run time : {}시간 {}분\n'.format(hour, min))
+            
+            if min >= 60: 
+                hour += 1
+                min = 0
+                print('run time : {}시간 {}분\n'.format(hour, min))
+            
+            if min % 5 == 1: # 프로그램을 시작하면 1분째에 한 번 실행한다.(5분주기)
+                print('{}분이 경과하였습니다. PH 예측을 시작합니다...\n'.format(5))
+
+                for i in range(7):
+                    ret, frame = cap.read()
+                    file = path + str(i+1) + '.jpg'
+                    cv2.imwrite(file, frame)
+                    time.sleep(10) # 초 단위 
+                print('image 저장완료'.format(i+1))
+                
+                crop.readPath(path) # crop
+                print('image crop 완료\n')
+                # LeNet_predict(path) # PH 예측 
+
+                print('예측 PH = {}\n')
+
+            if key == ord('q') or key == ord('Q'):
+                print('프로그램이 3초뒤 종료됩니다.')
+                time.sleep(3)
+
+                cap.release()
+                cv2.destroyAllWindows()
+                break
+        print('break')
+        break
+
+
+
+                
+                
+
 

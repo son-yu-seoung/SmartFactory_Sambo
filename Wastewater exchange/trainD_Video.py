@@ -2,7 +2,7 @@ import cv2
 import datetime
 import time
 
-path = './Module/train_image/'
+path = './Module/train_img/'
 
 cap = cv2.VideoCapture(1, cv2.CAP_DSHOW) # 종료할 때 [WARN:0]오류 제거 
 # print('width :%d, height : %d' % (cap.get(3), cap.get(4)))
@@ -34,7 +34,7 @@ while(True):
 
         for i in range(5): # 10장의 사진을 찍는다.
             ret, frame = cap.read() # frame이 실질적으로 영상을 가져오기 때문에 frame을 reset시켜줘야 움직이는 사진이 찍힌다!
-            file = path + 'green_' + '6.08_' + str(n) + '.jpg'
+            file = path + 'yellow_' + '7.93_' + str(n) + '.jpg'
             n +=1
             # file = path + datetime.datetime.now().strftime("%Y%m%d_%H%M%S%f") + '.jpg'
             cv2.imwrite(file, frame)
