@@ -21,12 +21,12 @@ def readPath(path):
 
         # # train data 생성할 때
         # fName = i.split('\\')[-1]
-        # crop_image.save('./crop_img/' + fName)
+        # crop_image.save('./train_crop/' + fName)
 
         # realT data 생성할 때
         fName = i.split('\\')[-1]
-        crop_image.save('./Module/realT_crop/' + fName)    
+        crop_image.save('./realT_crop/' + fName)    
 
-readPath('./train_img')
+# readPath('./train_img') # realT data 생성할 때 
 
 
