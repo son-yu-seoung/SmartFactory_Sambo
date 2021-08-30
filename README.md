@@ -11,3 +11,10 @@
 + **작동 예시**
 
 ![LineDetection ](https://user-images.githubusercontent.com/65440674/131129277-061d9fac-ec93-4a32-acef-709a78c600df.gif)
+
+## LeNet
+도금 수세 작업을 하는 과정에서 깨끗한 수세수가 점점 산성을 띄며 색이 탁해지는 경우 환수를 진행 해야되는데 그 작업을 자동으로 하기 위해서는 
+환수를 진행해야되는 시점을 판단해야되는데 그 판단을 하기위해서 LineDetection 모델을 사용해서 crop한 이미지를 사용해서 PH 예측 모델을 LeNet모델의 구조를 학습시켜서 만들었다.
+
+:+1: :sparkles: :tada: 
+:rocket: :metal: :+1:
