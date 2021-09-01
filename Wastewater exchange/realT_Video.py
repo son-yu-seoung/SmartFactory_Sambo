@@ -1,7 +1,8 @@
 import cv2, os
 import datetime
 import time
-from Module import crop, LeNet_predict
+import predict
+from Module import crop
 
 while(True):
     try:
@@ -30,9 +31,10 @@ while(True):
         img_path = './realT_img/'
         pred_path = './realT_crop/'
 
-        pred_model = LeNet_predict.LeNet_predict(pred_path)
-        os.system('cls')
+        pred_model = predict.PH_predict(pred_path)
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+        os.system('cls')
 
         print('\n\n▶▶▶▶▶▶PH 측정 프로그램 구동시작◀◀◀◀◀◀\n')
         print('▶▶ 설명')
@@ -46,7 +48,7 @@ while(True):
         start = time.time()
 
         while(True):
-            key = cv2.waitKey(0)
+            key = cv2.waitKey(1)
 
             ret, frame = cap.read()
             cv2.imshow('Original Video', frame) # 캡쳐를 할 때마다 불러서 실행시키면 성능이 안좋을 것 같다 -> 나중에 삭제
@@ -64,21 +66,21 @@ while(True):
                 min = 0
                 print('[ run time : {}시간 {}분 ]\n'.format(hour, min))
             
-            if min % 5 == 1: # 프로그램을 시작하면 1분째에 한 번 실행한다.(5분주기)
+            if min % 5 == 0: # 프로그램을 시작하면 1분째에 한 번 실행한다.(5분주기)
                 print('[ {}분이 경과하였습니다. PH 예측을 시작합니다... ]\n'.format(min))
 
                 for i in range(7):
                     ret, frame = cap.read()
                     file = img_path + str(i+1) + '.jpg'
                     cv2.imwrite(file, frame)
-                    time.sleep(10) # 초 단위 
+                    time.sleep(1) # 초 단위 
                 
                 crop.readPath(img_path) # crop
                 print('---> 이미지 저장, 자르기 완료'.format(i+1))
                 
-                PH = pred_model.predict(128) # PH 예측, dim 인자 줘야함 
+                PH = pred_model.predict(256) # PH 예측, dim 인자 줘야함 
 
-                print('\n※ 예측 PH = {}\n'.format(PH))
+                print('\n※ 예측 PH = {}\n'.format(PH[:, 0]))
 
             if key == ord('q') or key == ord('Q'):
                 print('프로그램이 3초뒤 종료됩니다.')

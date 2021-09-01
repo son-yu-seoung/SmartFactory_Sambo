@@ -34,7 +34,7 @@ while(True):
 
         for i in range(5): # 10장의 사진을 찍는다.
             ret, frame = cap.read() # frame이 실질적으로 영상을 가져오기 때문에 frame을 reset시켜줘야 움직이는 사진이 찍힌다!
-            file = path + 'yellow_' + '7.93_' + str(n) + '.jpg'
+            file = path + 'yellow_' + '0.92_' + str(n) + '.jpg'
             n +=1
             # file = path + datetime.datetime.now().strftime("%Y%m%d_%H%M%S%f") + '.jpg'
             cv2.imwrite(file, frame)
