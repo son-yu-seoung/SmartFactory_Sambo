@@ -31,7 +31,7 @@ class DataProcessing:
         self.train_y = np.array(self.train_y)
 
     def split_dataset(self):
-        self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.train_x, self.train_y, test_size=0.2, random_state=777)
+        self.train_x, self.test_x, self.train_y, self.test_y = train_test_split(self.train_x, self.train_y, test_size=0.3, random_state=777)
 
     def normalize_max(self, y, maxVal):
         self.train_y = y / maxVal

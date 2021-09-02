@@ -45,36 +45,61 @@ def train_model(input_shape, train_x, train_y, epoch):
     model.save('../VGG_model.h5')
 
     plt.figure(figsize = (12,4))
-    plt.subplot(1,2,1)
     plt.plot(history.history['loss'], 'b-', label = 'loss')
     plt.plot(history.history['val_loss'], 'r--', label = 'val_loss')
     plt.xlabel('Epochs')
-    plt.ylim(0, 0.01)
+    plt.ylim(0, 0.02)
     plt.legend()
 
     plt.show()
 
     return model
 
-def pred_model(trained_model, test_x, test_y):
-    model = trained_model # 이렇게 model을 새로 받으면 가중치 초기화 아닌가? 테스트하기
-    pred = model.predict(test_x)
-    test_y = test_y * 10 # normalize 풀기
-    PH = pred * 10
+def correlation_visualization(trained_model, train_x, train_y, test_x, test_y):
+    model = trained_model
+    
+    train_y = train_y[:374] * 10
+    test_y = test_y * 10
+    pred_train = (model.predict(train_x)[:374] * 10)
+    pred_test = (model.predict(test_x) * 10)
 
     for i in range(10):
-        #print('\n정답 : {}, 예상 : {}'.format(test_y[i], PH[i]))
-        print(test_y[i], PH[i][0])
-
+        print('\n정답 : {}, 예상 : {}'.format(test_y[i], pred_test[i][0]))
         plt.subplot(1, 10, i+1)
         plt.imshow(test_x[i])
-        plt.xlabel(PH[i][0])
-        plt.ylabel(test_y[i])
+
+    plt.figure(figsize = (5,5))
+    plt.plot(train_y, train_y, 'y.', label='target')
+    plt.plot(train_y, pred_train, 'b.', label='pred_train')
+    plt.plot(test_y, pred_test, 'r.', label='pred_test')
+    plt.axis([min(train_y), max(train_y), min(train_y), max(train_y)])
+
+    #y = x에 해당하는 선
+    plt.plot([min(train_y), max(train_y)], [min(train_y), max(train_y)], ls="--", c=".3", label = 'y=x')
+    plt.xlabel('Actual PH')
+    plt.ylabel('pred')
+    plt.legend()
+
+    plt.show()
+
+def correlation(train_y, test_y):
+    for i in range(train_y):
+        train_sum = train_sum + train_y[i]
+        test_sum = test_sum + test_y[i]
+
+    train_avarage = train_sum/len(train_y)
+    test_avarage = test_sum/len(test_y)
+
+    train_Deviation = train_y[0] - train_avarage
+    test_Deviation = test_y[0] - test_avarage
+
+    Covariance = train_Deviation * test_Deviation
 
 path = './train_crop'
 dim = 256
 pre_p = dp.DataProcessing(path)
 train_x, train_y, test_x, test_y = pre_p.load_data(dim)
 
-trained_model = train_model((dim, dim, 3), train_x, train_y, 10)
-pred_model(trained_model, test_x, test_y)
+trained_model = train_model((dim, dim, 3), train_x, train_y, 50)
+
+correlation_visualization(trained_model, train_x, train_y, test_x, test_y)
